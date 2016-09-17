@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ "$TRACE" ]] && set -x
+
+: ${VOLUME_DIR:=/mnt}
+: ${VOLUME_NAME:=volume}
+: ${DEVICE_NAME:=lukscrypter}
+
+out() {
+  echo "** $@"
+}
+
+run_escape_to() {
+  exec "$@"
+}
+
+create_st_user() {
+  local user_id="$1"
+  local group_id="$2"
+  addgroup -g ${group_id} st
+  adduser -H -D -u ${user_id} -G st st
+}
+
+prepare_data_dir() {
+  local data_dir="$1"
+  chown st:st $data_dir
+}
+
+run_syncthing() {
+  local config_dir="$1"
+  gosu st bash -c "syncthing -home=${config_dir} -no-browser -no-restart --gui-address='0.0.0.0:8384'"
+}
+
+main() {
+  local cmd="$1"; shift
+  local args="$@"
+  local st_user_id=${ST_USER_ID:-1000}
+  local st_group_id=${ST_GROUP_ID:-1000}
+  local st_config_dir=${ST_CONFIG_DIR:-/opt}
+  local st_data_dir=${ST_DATA_DIR:-/mnt}
+
+  case "$cmd" in
+  escto)
+    run_escape_to "$args";;
+  *)
+    create_st_user "$st_user_id" "$st_group_id"
+    prepare_data_dir "$st_data_dir"
+    run_syncthing "$st_user_id" "$st_group_id" "$st_config_dir"
+  ;;
+  esac
+}
+
+main "$@"
