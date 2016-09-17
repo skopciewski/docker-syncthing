@@ -2,10 +2,6 @@
 set -eo pipefail
 [[ "$TRACE" ]] && set -x
 
-: ${VOLUME_DIR:=/mnt}
-: ${VOLUME_NAME:=volume}
-: ${DEVICE_NAME:=lukscrypter}
-
 out() {
   echo "** $@"
 }
@@ -26,9 +22,14 @@ prepare_data_dir() {
   chown st:st $data_dir
 }
 
+prepare_config_dir() {
+  local config_dir="$1"
+  chown st:st $config_dir
+}
+
 run_syncthing() {
   local config_dir="$1"
-  gosu st bash -c "syncthing -home=${config_dir} -no-browser -no-restart --gui-address='0.0.0.0:8384'"
+  gosu st bash -c "syncthing -home=${config_dir} -no-browser -no-restart --gui-address=0.0.0.0:8384"
 }
 
 main() {
@@ -45,7 +46,8 @@ main() {
   *)
     create_st_user "$st_user_id" "$st_group_id"
     prepare_data_dir "$st_data_dir"
-    run_syncthing "$st_user_id" "$st_group_id" "$st_config_dir"
+    prepare_config_dir "$st_config_dir"
+    run_syncthing "$st_config_dir"
   ;;
   esac
 }
