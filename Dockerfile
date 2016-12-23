@@ -3,13 +3,36 @@ FROM gliderlabs/alpine:3.4
 # grab gosu for easy step-down from root
 RUN apk-install curl \
     && curl -o /usr/local/bin/gosu -fsSL \
-      "https://github.com/tianon/gosu/releases/download/1.9/gosu-amd64" \
+      "https://github.com/tianon/gosu/releases/download/1.10/gosu-amd64" \
     && chmod +x /usr/local/bin/gosu \
     && apk del curl \
     && rm -rfv /var/cache/apk/*
 
-RUN echo "@edge_community http://nl.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
-RUN apk-install syncthing@edge_community bash
+ENV GOROOT=/usr/lib/go \
+    GOPATH=/go \
+    PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+
+RUN apk-install bash libxml2 libxslt && \
+    apk add --no-cache --virtual .build-dependencies jq curl git go ca-certificates && \
+    # adduser -D syncthing && \
+
+    # compile syncthing
+    VERSION=`curl -s https://api.github.com/repos/syncthing/syncthing/releases/latest | jq -r '.tag_name'` && \
+    mkdir -p /go/src/github.com/syncthing && \
+    cd /go/src/github.com/syncthing && \
+    git clone https://github.com/syncthing/syncthing.git && \
+    cd syncthing && \
+    git checkout $VERSION && \
+    go run build.go && \
+    mkdir -p /go/bin && \
+    mv bin/syncthing /go/bin/syncthing && \
+    chown guest:users /go/bin/syncthing && \
+
+    # cleanup
+    rm -rf /go/pkg && \
+    rm -rf /go/src && \
+    apk del .build-dependencies && \
+    rm -rfv /var/cache/apk/*
 
 COPY data/entrypoint /entrypoint
 RUN chmod 755 /entrypoint
