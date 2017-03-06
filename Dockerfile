@@ -12,7 +12,7 @@ ENV GOROOT=/usr/lib/go \
     PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 
 RUN apk add --no-cache bash libxml2 libxslt \
-    && apk add --no-cache --virtual .build-dependencies jq curl git go ca-certificates \
+    && apk add --no-cache --virtual .build-dependencies jq curl git go ca-certificates g++ \
     # compile syncthing
     && VERSION=`curl -s https://api.github.com/repos/syncthing/syncthing/releases/latest | jq -r '.tag_name'` \
     && mkdir -p /go/src/github.com/syncthing \
