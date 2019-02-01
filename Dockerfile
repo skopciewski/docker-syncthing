@@ -1,4 +1,4 @@
-FROM alpine:3.8
+FROM alpine:3.9
 
 # grab gosu for easy step-down from root
 RUN apk add --no-cache curl \
