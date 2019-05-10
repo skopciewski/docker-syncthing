@@ -25,7 +25,7 @@ RUN apk add --no-cache curl \
     && chmod +x /usr/local/bin/gosu \
     && apk del curl
 
-RUN apk add --no-cache ca-certificates
+RUN apk add --no-cache ca-certificates bash
 
 COPY --from=builder /src/syncthing /bin/syncthing
 COPY data/entrypoint /entrypoint
