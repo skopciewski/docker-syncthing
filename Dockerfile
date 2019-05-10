@@ -27,7 +27,7 @@ RUN apk add --no-cache curl \
 
 RUN apk add --no-cache ca-certificates bash
 
-COPY --from=builder /src/syncthing /bin/syncthing
+COPY --from=builder /src/syncthing/syncthing /bin/syncthing
 COPY data/entrypoint /entrypoint
 RUN chmod 755 /entrypoint
 
