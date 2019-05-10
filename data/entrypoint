@@ -29,7 +29,7 @@ prepare_config_dir() {
 
 run_syncthing() {
   local config_dir="$1"
-  gosu st bash -c "/go/bin/syncthing -home=${config_dir} -no-browser -no-restart --gui-address=0.0.0.0:8384"
+  gosu st bash -c "/bin/syncthing -home=${config_dir} -no-browser -no-restart --gui-address=0.0.0.0:8384"
 }
 
 main() {
