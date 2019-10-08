@@ -1,4 +1,4 @@
-FROM golang:1.12 AS builder
+FROM golang:1.13 AS builder
 
 WORKDIR /src
 ENV CGO_ENABLED=0
@@ -16,12 +16,12 @@ RUN VERSION=`curl -s https://api.github.com/repos/syncthing/syncthing/releases/l
 
 #---------------------------------------------------------------------------------------------
 
-FROM alpine:3.9
+FROM alpine:3.10
 
 # grab gosu for easy step-down from root
 RUN apk add --no-cache curl \
     && curl -o /usr/local/bin/gosu -fsSL \
-      "https://github.com/tianon/gosu/releases/download/1.10/gosu-amd64" \
+      "https://github.com/tianon/gosu/releases/download/1.11/gosu-amd64" \
     && chmod +x /usr/local/bin/gosu \
     && apk del curl
 
